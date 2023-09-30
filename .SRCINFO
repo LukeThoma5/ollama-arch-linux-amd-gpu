@@ -1,0 +1,24 @@
+pkgbase = ollama
+	pkgdesc = Create, run and share large language models (LLMs)
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/jmorganca/ollama
+	arch = x86_64
+	license = MIT
+	makedepends = cmake
+	makedepends = cuda
+	makedepends = git
+	makedepends = go
+	source = git+https://github.com/jmorganca/ollama#commit=5306b0269db6c6c4f716ff6c3c4514d5aba74c19
+	source = ggml::git+https://github.com/ggerganov/llama.cpp#commit=9e232f0234073358e7031c1b8d7aa45020469a3b
+	source = gguf::git+https://github.com/ggerganov/llama.cpp#commit=bc9d3e3971e5607a10ff4c24e39568ce1ac87271
+	b2sums = SKIP
+	b2sums = SKIP
+	b2sums = SKIP
+
+pkgname = ollama
+
+pkgname = ollama-cuda
+	depends = cuda
+	provides = ollama
+	conflicts = ollama
