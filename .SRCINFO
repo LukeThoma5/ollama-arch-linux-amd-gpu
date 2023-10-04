@@ -9,6 +9,7 @@ pkgbase = ollama
 	makedepends = cuda
 	makedepends = git
 	makedepends = go
+	makedepends = setconf
 	source = git+https://github.com/jmorganca/ollama#commit=1852755154a8f82cc2dcb01c37159340a55347ca
 	source = ggml::git+https://github.com/ggerganov/llama.cpp#commit=9e232f0234073358e7031c1b8d7aa45020469a3b
 	source = gguf::git+https://github.com/ggerganov/llama.cpp#commit=bc9d3e3971e5607a10ff4c24e39568ce1ac87271

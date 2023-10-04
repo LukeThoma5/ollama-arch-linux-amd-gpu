@@ -9,7 +9,7 @@ pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
-makedepends=(cmake cuda git go)
+makedepends=(cmake cuda git go setconf)
 _ollamacommit=1852755154a8f82cc2dcb01c37159340a55347ca # tag: v0.1.1
 # The git submodule commit hashes are here:
 # https://github.com/jmorganca/ollama/tree/v0.1.1/llm/llama.cpp
@@ -39,6 +39,9 @@ prepare() {
   # Fix go test ./...
   patch -p1 -i ../gotest.patch
 
+  # Set the correct version number
+  setconf version/version.go 'var Version string' "\"$pkgver\""
+
   cd ..
 
   # Copy the sources to an ollama-cuda directory.
@@ -63,8 +66,8 @@ build() {
 }
 
 check() {
-  (cd $pkgbase && go test ./...)
-  (cd ${pkgbase}-cuda && go test ./...)
+  cd $pkgbase
+  go test ./...
 }
 
 package_ollama() {
