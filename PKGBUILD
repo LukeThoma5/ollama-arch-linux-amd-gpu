@@ -5,7 +5,7 @@ pkgbase=ollama
 pkgname=(ollama ollama-cuda)
 pkgdesc='Create, run and share large language models (LLMs)'
 pkgver=0.1.1
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
@@ -57,12 +57,12 @@ build() {
   # without CUDA support (LLAMA_CUBLAS=off)
   cd $pkgbase
   go generate ./...
-  go build -buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw
+  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid=''
 
   # with CUDA support (LLAMA_CUBLAS=on)
   cd ../${pkgbase}-cuda
   go generate ./...
-  go build -buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw
+  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid=''
 }
 
 check() {
