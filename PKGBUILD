@@ -4,21 +4,25 @@
 pkgbase=ollama
 pkgname=(ollama ollama-cuda)
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
 makedepends=(cmake cuda git go)
-_ollamacommit=5306b0269db6c6c4f716ff6c3c4514d5aba74c19 # tag: v0.1.0
+_ollamacommit=1852755154a8f82cc2dcb01c37159340a55347ca # tag: v0.1.1
 # The git submodule commit hashes are here:
-# https://github.com/jmorganca/ollama/tree/v0.1.0/llm/llama.cpp
+# https://github.com/jmorganca/ollama/tree/v0.1.1/llm/llama.cpp
 _ggmlcommit=9e232f0234073358e7031c1b8d7aa45020469a3b
 _ggufcommit=bc9d3e3971e5607a10ff4c24e39568ce1ac87271
 source=(git+$url#commit=$_ollamacommit
         ggml::git+https://github.com/ggerganov/llama.cpp#commit=$_ggmlcommit
-        gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit)
-b2sums=(SKIP SKIP SKIP)
+        gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
+        gotest.patch::https://github.com/xyproto/ollama/commit/f17499967e997e10986d8e246344ef706bd9857f.patch)
+b2sums=('SKIP'
+        'SKIP'
+        'SKIP'
+        '32fee3699a866165dd522095620dfb68082ec69c90d6fb09a16e50c5c2de51066b67bc4ceae34672c89990cf11e0d85bd7bb1f1ffa55b1163aedf93ed45095b2')
 
 prepare() {
   cd $pkgbase
@@ -31,6 +35,9 @@ prepare() {
 
   # Do not git clone when "go generate" is being run.
   sed -i 's,git submodule,true,g' llm/llama.cpp/generate_linux.go
+
+  # Fix go test ./...
+  patch -p1 -i ../gotest.patch
 
   cd ..
 
