@@ -4,13 +4,13 @@
 pkgbase=ollama
 pkgname=(ollama ollama-cuda)
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.1
-pkgrel=2
+pkgver=0.1.3
+pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
 makedepends=(cmake cuda git go setconf)
-_ollamacommit=1852755154a8f82cc2dcb01c37159340a55347ca # tag: v0.1.1
+_ollamacommit=832b4db9d4baf22497145dde55f334b292ed665f # tag: v0.1.3
 # The git submodule commit hashes are here:
 # https://github.com/jmorganca/ollama/tree/v0.1.1/llm/llama.cpp
 _ggmlcommit=9e232f0234073358e7031c1b8d7aa45020469a3b
@@ -18,11 +18,11 @@ _ggufcommit=bc9d3e3971e5607a10ff4c24e39568ce1ac87271
 source=(git+$url#commit=$_ollamacommit
         ggml::git+https://github.com/ggerganov/llama.cpp#commit=$_ggmlcommit
         gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
-        gotest.patch::https://github.com/xyproto/ollama/commit/f17499967e997e10986d8e246344ef706bd9857f.patch)
+        gotest.patch::https://github.com/xyproto/ollama/commit/fddb303f23e68ef80a028257554979b22addb438.patch)
 b2sums=('SKIP'
         'SKIP'
         'SKIP'
-        '32fee3699a866165dd522095620dfb68082ec69c90d6fb09a16e50c5c2de51066b67bc4ceae34672c89990cf11e0d85bd7bb1f1ffa55b1163aedf93ed45095b2')
+        '75cb9609585e5bdf7ba1714ae55ee77a769fa46973c3e06bec4e2bd3f965a1547f82aef963a0e37efaaaae8ea3e5cc4cc734b03fb9b056300e29e3cb715c8df3')
 
 prepare() {
   cd $pkgbase
