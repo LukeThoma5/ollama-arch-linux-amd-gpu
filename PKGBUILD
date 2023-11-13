@@ -4,7 +4,7 @@
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
 pkgver=0.1.9
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
