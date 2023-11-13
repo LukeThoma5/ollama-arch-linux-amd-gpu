@@ -3,23 +3,29 @@
 
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.8
+pkgver=0.1.9
 pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
 makedepends=(cmake git go setconf)
-_ollamacommit=e21579a0f1548e2d1f77411af3df2037c1f144fe # tag: v0.1.8
+_ollamacommit=5cba29b9d666854706a194805c9d66518fe77545 # tag: v0.1.9
 # The git submodule commit hashes are here:
-# https://github.com/jmorganca/ollama/tree/v0.1.8/llm/llama.cpp
+# https://github.com/jmorganca/ollama/tree/v0.1.9/llm/llama.cpp
 _ggmlcommit=9e232f0234073358e7031c1b8d7aa45020469a3b
 _ggufcommit=9e70cc03229df19ca2d28ce23cc817198f897278
 source=(git+$url#commit=$_ollamacommit
         ggml::git+https://github.com/ggerganov/llama.cpp#commit=$_ggmlcommit
-        gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit)
+        gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
+        sysusers.conf
+        tmpfiles.d
+        ollama.service)
 b2sums=('SKIP'
         'SKIP'
-        'SKIP')
+        'SKIP'
+        '3aabf135c4f18e1ad745ae8800db782b25b15305dfeaaa031b4501408ab7e7d01f66e8ebb5be59fc813cfbff6788d08d2e48dcf24ecc480a40ec9db8dbce9fec'
+        'c890a741958d31375ebbd60eeeb29eff965a6e1e69f15eb17ea7d15b575a4abee176b7d407b3e1764aa7436862a764a05ad04bb9901a739ffd81968c09046bb6'
+        'a773bbf16cf5ccc2ee505ad77c3f9275346ddf412be283cfeaee7c2e4c41b8637a31aaff8766ed769524ebddc0c03cf924724452639b62208e578d98b9176124')
 
 prepare() {
   cd $pkgname
@@ -38,8 +44,8 @@ prepare() {
 }
 
 build() {
-  export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
   cd $pkgname
+  export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
   go generate ./...
   go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid=''
 }
@@ -50,7 +56,10 @@ check() {
 }
 
 package() {
-  cd $pkgname
-  install -Dm755 $pkgname "$pkgdir/usr/bin/$pkgname"
-  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm755 $pkgname/$pkgname "$pkgdir/usr/bin/$pkgname"
+  install -dm700 "$pkgdir/var/lib/ollama"
+  install -Dm644 ollama.service "$pkgdir/usr/lib/systemd/system/ollama.service"
+  install -Dm644 sysusers.conf "$pkgdir/usr/lib/sysusers.d/ollama.conf"
+  install -Dm644 tmpfiles.d "$pkgdir/usr/lib/tmpfiles.d/ollama.conf"
+  install -Dm644 $pkgname/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
