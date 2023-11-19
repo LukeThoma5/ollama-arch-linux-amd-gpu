@@ -1,7 +1,7 @@
 pkgbase = ollama
 	pkgdesc = Create, run and share large language models (LLMs)
-	pkgver = 0.1.9
-	pkgrel = 2
+	pkgver = 0.1.10
+	pkgrel = 1
 	url = https://github.com/jmorganca/ollama
 	arch = x86_64
 	license = MIT
@@ -9,7 +9,7 @@ pkgbase = ollama
 	makedepends = git
 	makedepends = go
 	makedepends = setconf
-	source = git+https://github.com/jmorganca/ollama#commit=5cba29b9d666854706a194805c9d66518fe77545
+	source = git+https://github.com/jmorganca/ollama#commit=41434a7cdcf33918ae2d37eb23d819ef7361e843
 	source = ggml::git+https://github.com/ggerganov/llama.cpp#commit=9e232f0234073358e7031c1b8d7aa45020469a3b
 	source = gguf::git+https://github.com/ggerganov/llama.cpp#commit=9e70cc03229df19ca2d28ce23cc817198f897278
 	source = sysusers.conf
