@@ -1,10 +1,11 @@
 # Maintainer: Alexander F. Rødseth <xyproto@archlinux.org>
 # Contributor: Matt Harrison <matt@harrison.us.com>
+# Contributor: Kainoa Kanter <kainoa@t1c.dev>
 
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
 pkgver=0.1.17
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
@@ -39,18 +40,24 @@ prepare() {
   # Do not git clone when "go generate" is being run.
   sed -i 's,git submodule,true,g' llm/llama.cpp/generate_linux.go
 
+  # Do not build with CUDA, but turn LTO on
   sed -i 's,LLAMA_CUBLAS=on,LLAMA_LTO=on,g' llm/llama.cpp/generate_linux.go
 
-  # Set the version number
-  setconf version/version.go 'var Version string' "\"$pkgver\""
+  # Set build mode to release
+  sed -i '33s/DebugMode/ReleaseMode/;45s/DebugMode/ReleaseMode/' "$srcdir/ollama/server/routes.go"
 }
 
 build() {
   cd $pkgname
   export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
-
   go generate ./...
   go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid=''
+}
+
+
+check() {
+  cd ${pkgname/-cuda}
+  go test ./...
 }
 
 package() {
