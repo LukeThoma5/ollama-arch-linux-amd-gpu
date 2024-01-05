@@ -5,15 +5,15 @@
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
 pkgver=0.1.18
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
-makedepends=(cmake git go setconf)
 _ollamacommit=c0285158a91809d059ff9006dae5ce545bf9c812 # tag: v0.1.18
 # The git submodule commit hashe can be found here:
 # https://github.com/jmorganca/ollama/tree/v0.1.18/llm/llama.cpp
 _ggufcommit=328b83de23b33240e28f4e74900d1d06726f5eb1
+makedepends=(cmake git go)
 source=(git+$url#commit=$_ollamacommit
         gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
         sysusers.conf
@@ -30,10 +30,10 @@ prepare() {
 
   rm -frv llm/llama.cpp/gguf
 
-  # Copy git submodule files instead of symlinking because the build process is sensitive to symlinks.
+  # Copy git submodule files instead of symlinking because the build process is sensitive to symlinks
   cp -r "$srcdir/gguf" llm/llama.cpp/gguf
 
-  # Turn LTO on and enable a release build
+  # Turn LTO on and set the build type to Release
   sed -i 's,_CODE=on,_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/llama.cpp/gen_linux.sh
 }
 
