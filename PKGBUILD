@@ -4,65 +4,56 @@
 
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.17
-pkgrel=2
+pkgver=0.1.18
+pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
 makedepends=(cmake git go setconf)
-_ollamacommit=6b5bdfa6c9321405174ad443f21c2e41db36a867 # tag: v0.1.17
-# The git submodule commit hashes are here:
-# https://github.com/jmorganca/ollama/tree/v0.1.17/llm/llama.cpp
-_ggmlcommit=9e232f0234073358e7031c1b8d7aa45020469a3b
-_ggufcommit=a7aee47b98e45539d491071b25778b833b77e387
+_ollamacommit=c0285158a91809d059ff9006dae5ce545bf9c812 # tag: v0.1.18
+# The git submodule commit hashe can be found here:
+# https://github.com/jmorganca/ollama/tree/v0.1.18/llm/llama.cpp
+_ggufcommit=328b83de23b33240e28f4e74900d1d06726f5eb1
 source=(git+$url#commit=$_ollamacommit
-        ggml::git+https://github.com/ggerganov/llama.cpp#commit=$_ggmlcommit
         gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
         sysusers.conf
         tmpfiles.d
         ollama.service)
 b2sums=('SKIP'
         'SKIP'
-        'SKIP'
         '3aabf135c4f18e1ad745ae8800db782b25b15305dfeaaa031b4501408ab7e7d01f66e8ebb5be59fc813cfbff6788d08d2e48dcf24ecc480a40ec9db8dbce9fec'
-        'c890a741958d31375ebbd60eeeb29eff965a6e1e69f15eb17ea7d15b575a4abee176b7d407b3e1764aa7436862a764a05ad04bb9901a739ffd81968c09046bb6'
+        'e8f2b19e2474f30a4f984b45787950012668bf0acb5ad1ebb25cd9776925ab4a6aa927f8131ed53e35b1c71b32c504c700fe5b5145ecd25c7a8284373bb951ed'
         'a773bbf16cf5ccc2ee505ad77c3f9275346ddf412be283cfeaee7c2e4c41b8637a31aaff8766ed769524ebddc0c03cf924724452639b62208e578d98b9176124')
 
 prepare() {
   cd $pkgname
 
-  rm -frv llm/llama.cpp/gg{ml,uf}
+  rm -frv llm/llama.cpp/gguf
 
   # Copy git submodule files instead of symlinking because the build process is sensitive to symlinks.
-  cp -r "$srcdir/ggml" llm/llama.cpp/ggml
   cp -r "$srcdir/gguf" llm/llama.cpp/gguf
 
-  # Do not git clone when "go generate" is being run.
-  sed -i 's,git submodule,true,g' llm/llama.cpp/generate_linux.go
-
-  # Do not build with CUDA, but turn LTO on
-  sed -i 's,LLAMA_CUBLAS=on,LLAMA_LTO=on,g' llm/llama.cpp/generate_linux.go
-
-  # Set build mode to release
-  sed -i '33s/DebugMode/ReleaseMode/;45s/DebugMode/ReleaseMode/' "$srcdir/ollama/server/routes.go"
+  # Turn LTO on and enable a release build
+  sed -i 's,_CODE=on,_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/llama.cpp/gen_linux.sh
 }
 
 build() {
   cd $pkgname
   export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
   go generate ./...
-  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid=''
+  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid='' \
+    -ldflags="-X=github.com/jmorganca/ollama/version.Version=$pkgver"
 }
 
 
 check() {
-  cd ${pkgname/-cuda}
-  go test ./...
+  cd $pkgname
+  go test ./api ./format ./gpu
 }
 
 package() {
   install -Dm755 $pkgname/$pkgname "$pkgdir/usr/bin/$pkgname"
-  install -dm700 "$pkgdir/var/lib/ollama"
+  install -dm755 "$pkgdir/var/lib/ollama"
   install -Dm644 ollama.service "$pkgdir/usr/lib/systemd/system/ollama.service"
   install -Dm644 sysusers.conf "$pkgdir/usr/lib/sysusers.d/ollama.conf"
   install -Dm644 tmpfiles.d "$pkgdir/usr/lib/tmpfiles.d/ollama.conf"
