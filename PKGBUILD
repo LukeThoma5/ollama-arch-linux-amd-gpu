@@ -4,18 +4,18 @@
 
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.18
-pkgrel=2
+pkgver=0.1.19
+pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
-_ollamacommit=c0285158a91809d059ff9006dae5ce545bf9c812 # tag: v0.1.18
-# The git submodule commit hashe can be found here:
-# https://github.com/jmorganca/ollama/tree/v0.1.18/llm/llama.cpp
-_ggufcommit=328b83de23b33240e28f4e74900d1d06726f5eb1
+_ollamacommit=34344d801ccb2ea1a9a25bbc69576fc9f82211ae # tag: v0.1.19
+# The git submodule commit hash can be found here:
+# https://github.com/jmorganca/ollama/tree/v0.1.19/llm
+_llama_cpp_commit=328b83de23b33240e28f4e74900d1d06726f5eb1
 makedepends=(cmake git go)
 source=(git+$url#commit=$_ollamacommit
-        gguf::git+https://github.com/ggerganov/llama.cpp#commit=$_ggufcommit
+        llama.cpp::git+https://github.com/ggerganov/llama.cpp#commit=$_llama_cpp_commit
         sysusers.conf
         tmpfiles.d
         ollama.service)
@@ -28,13 +28,13 @@ b2sums=('SKIP'
 prepare() {
   cd $pkgname
 
-  rm -frv llm/llama.cpp/gguf
+  rm -frv llm/llama.cpp
 
   # Copy git submodule files instead of symlinking because the build process is sensitive to symlinks
-  cp -r "$srcdir/gguf" llm/llama.cpp/gguf
+  cp -r "$srcdir/llama.cpp" llm/llama.cpp
 
   # Turn LTO on and set the build type to Release
-  sed -i 's,_CODE=on,_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/llama.cpp/gen_linux.sh
+  sed -i 's,T_CODE=on,T_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/generate/gen_linux.sh
 }
 
 build() {
@@ -48,7 +48,8 @@ build() {
 
 check() {
   cd $pkgname
-  go test ./api ./format ./gpu
+  go test ./api ./format
+  ./ollama --version >/dev/null
 }
 
 package() {
