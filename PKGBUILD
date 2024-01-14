@@ -4,14 +4,14 @@
 
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
-pkgver=0.1.19
+pkgver=0.1.20
 pkgrel=1
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
-_ollamacommit=34344d801ccb2ea1a9a25bbc69576fc9f82211ae # tag: v0.1.19
-# The git submodule commit hash can be found here:
-# https://github.com/jmorganca/ollama/tree/v0.1.19/llm
+_ollamacommit=ab6be852c77064d7abeffb0b03c096aab90e95fe # tag: v0.1.20
+# The llama.cpp git submodule commit hash can be found here:
+# https://github.com/jmorganca/ollama/tree/v0.1.20/llm
 _llama_cpp_commit=328b83de23b33240e28f4e74900d1d06726f5eb1
 makedepends=(cmake git go)
 source=(git+$url#commit=$_ollamacommit
@@ -41,8 +41,8 @@ build() {
   cd $pkgname
   export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
   go generate ./...
-  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external -ldflags=-buildid='' \
-    -ldflags="-X=github.com/jmorganca/ollama/version.Version=$pkgver"
+  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external \
+    -ldflags=-buildid='' -ldflags="-X=github.com/jmorganca/ollama/version.Version=$pkgver"
 }
 
 
