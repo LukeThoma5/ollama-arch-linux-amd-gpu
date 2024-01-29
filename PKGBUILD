@@ -5,7 +5,7 @@
 pkgname=ollama
 pkgdesc='Create, run and share large language models (LLMs)'
 pkgver=0.1.22
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
@@ -35,6 +35,9 @@ prepare() {
 
   # Turn LTO on and set the build type to Release
   sed -i 's,T_CODE=on,T_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/generate/gen_linux.sh
+
+  # Display a more helpful error message
+  sed -i "s|could not connect to ollama server, run 'ollama serve' to start it|ollama is not running, try 'systemctl start ollama'|g" cmd/cmd.go
 }
 
 build() {
