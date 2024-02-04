@@ -9,11 +9,11 @@ pkgrel=2
 arch=(x86_64)
 url='https://github.com/jmorganca/ollama'
 license=(MIT)
-_ollamacommit=a47d8b2557259ffc9881817df97fbf6d6824e89e # tag: v0.1.22
+_ollamacommit=b538dc3858014f94b099730a592751a5454cab0a # tag: v0.1.22
 # The llama.cpp git submodule commit hash can be found here:
 # https://github.com/jmorganca/ollama/tree/v0.1.22/llm
-_llama_cpp_commit=cd4fddb29f81d6a1f6d51a0c016bc6b486d68def
-makedepends=(cmake git go)
+_llama_cpp_commit=d2f650cb5b04ee2726663e79b47da5efe196ce00
+makedepends=(cmake git go rocm-hip-sdk rocm-opencl-sdk clblast)
 source=(git+$url#commit=$_ollamacommit
         llama.cpp::git+https://github.com/ggerganov/llama.cpp#commit=$_llama_cpp_commit
         sysusers.conf
@@ -34,7 +34,7 @@ prepare() {
   cp -r "$srcdir/llama.cpp" llm/llama.cpp
 
   # Turn LTO on and set the build type to Release
-  sed -i 's,T_CODE=on,T_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/generate/gen_linux.sh
+  # sed -i 's,T_CODE=on,T_CODE=on -D LLAMA_LTO=on -D CMAKE_BUILD_TYPE=Release,g' llm/generate/gen_linux.sh
 
   # Display a more helpful error message
   sed -i "s|could not connect to ollama server, run 'ollama serve' to start it|ollama is not running, try 'systemctl start ollama'|g" cmd/cmd.go
@@ -42,10 +42,10 @@ prepare() {
 
 build() {
   cd $pkgname
-  export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
-  go generate ./...
-  go build -buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=-linkmode=external \
-    -ldflags=-buildid='' -ldflags="-X=github.com/jmorganca/ollama/version.Version=$pkgver"
+  # export CGO_CFLAGS="$CFLAGS" CGO_CPPFLAGS="$CPPFLAGS" CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
+  export ROCM_PATH=/opt/rocm CLBlast_DIR=/usr/lib/cmake/CLBlast
+  go generate -tags rocm ./...
+  go build -tags rocm
 }
 
 

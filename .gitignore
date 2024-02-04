@@ -1,0 +1,5 @@
+src/
+pkg/
+ollama/
+llama.cpp/
+*.pkg.*
